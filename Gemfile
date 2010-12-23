@@ -7,7 +7,9 @@ gem 'rest-open-uri'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'sqlite3-ruby', :require => 'sqlite3'
+group :development, :test do
+  gem 'sqlite3-ruby', :require => 'sqlite3'
+end
 
 # Use unicorn as the web server
 # gem 'unicorn'
