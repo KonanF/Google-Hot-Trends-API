@@ -1,0 +1,27 @@
+<h1>Listing hottrends</h1>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Num</th>
+    <th>Text</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @hottrends.each do |hottrend| %>
+  <tr>
+    <td><%= hottrend.date %></td>
+    <td><%= hottrend.num %></td>
+    <td><%= hottrend.text %></td>
+    <td><%= link_to 'Show', hottrend %></td>
+    <td><%= link_to 'Edit', edit_hottrend_path(hottrend) %></td>
+    <td><%= link_to 'Destroy', hottrend, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Hottrend', new_hottrend_path %>

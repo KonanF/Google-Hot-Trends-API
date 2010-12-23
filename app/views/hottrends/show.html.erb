@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Date:</b>
+  <%= @hottrend.date %>
+</p>
+
+<p>
+  <b>Num:</b>
+  <%= @hottrend.num %>
+</p>
+
+<p>
+  <b>Text:</b>
+  <%= @hottrend.text %>
+</p>
+
+
+<%= link_to 'Edit', edit_hottrend_path(@hottrend) %> |
+<%= link_to 'Back', hottrends_path %>
