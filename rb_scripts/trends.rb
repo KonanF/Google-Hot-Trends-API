@@ -8,7 +8,6 @@ open("http://www.google.com/trends/hottrends", hdrs).each {|s| my_html << s}
 @web_doc= Hpricot(my_html)
 
 @t = []
-
 (@web_doc/"td.hotColumn").search("a").each do |e|
   @t.push(e.inner_html)
 end

@@ -1,0 +1,9 @@
+<p id="notice"><%= notice %></p>
+
+<ol>
+  <% @hottrends.each do |h| %>
+  <li>
+    <%= h.text %>
+  </li>
+  <% end %>
+</ol>

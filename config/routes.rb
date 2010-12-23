@@ -1,6 +1,8 @@
 Trends::Application.routes.draw do
   resources :hottrends
-
+  
+  match 'api/hottrends/:date' => 'hottrends#api'
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

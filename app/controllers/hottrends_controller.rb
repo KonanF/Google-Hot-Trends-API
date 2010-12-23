@@ -1,4 +1,39 @@
+require 'hpricot'
+require 'rest-open-uri'
+
 class HottrendsController < ApplicationController
+  
+  # GET api/hottrends/2009-8-16
+  # GET api/hottrends/2009-8-16.xml
+  def api
+    @hottrends = Hottrend.all
+    #@hottrend = Hottrend.find(:date => params[:date])
+    
+    if Hottrend.where(:date => params[:date].to_date).empty?
+      
+      # If empty do Create Hottrends
+      hdrs = {"User-Agent"=>"Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1", "Accept-Charset"=>"utf-8", "Accept"=>"text/html"}
+      my_html = ""
+      url = "http://www.google.com/trends/hottrends?date="+params[:date]
+      page = open(url, hdrs).each {|s| my_html << s}
+      @web_doc= Hpricot(my_html)
+
+      @i = 0
+      (@web_doc/"td.hotColumn").search("a").each do |e|
+        Hottrend.create(:date => params[:date], :text => e.inner_html, :num => @i)
+        @i += 1
+      end
+    end
+    
+    # Get Hottrends
+    @hottrends = Hottrend.where(:date => params[:date].to_date)
+
+    respond_to do |format|
+      format.html # api.html.erb
+      format.xml  { render :xml => @hottrend }
+    end
+  end
+
   # GET /hottrends
   # GET /hottrends.xml
   def index
