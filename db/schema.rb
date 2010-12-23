@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101223191802) do
+ActiveRecord::Schema.define(:version => 20101223213241) do
 
   create_table "hottrends", :force => true do |t|
     t.date     "date"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(:version => 20101223191802) do
     t.string   "text"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "culture"
   end
 
 end
