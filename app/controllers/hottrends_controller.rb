@@ -14,6 +14,7 @@ class HottrendsController < ApplicationController
     respond_to do |format|
       format.html # api_day.html.erb
       format.xml  { render :xml => @hottrends }
+      format.json  { render :json => @hottrends }
     end
   end
 
@@ -29,6 +30,7 @@ class HottrendsController < ApplicationController
     respond_to do |format|
       format.html # api_period.html.erb
       format.xml  { render :xml => @hottrends }
+      format.json  { render :json => @hottrends }
     end
   end
 
