@@ -9,7 +9,7 @@ class HottrendsController < ApplicationController
     date = params[:date].to_date
     create_hot_trends_if_not_in_db(date)
     
-    @hottrends = Hottrend.where(:date => date)
+    @hottrends = Hottrend.where(:date => date).order(:num)
     
     respond_to do |format|
       format.html # api_day.html.erb
@@ -25,7 +25,7 @@ class HottrendsController < ApplicationController
     @end_date = params[:end_date].to_date
     create_hot_trends_if_not_in_db_by_period(@start_date, @end_date)
 
-    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date)
+    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date).order(:num)
     
     respond_to do |format|
       format.html # api_period.html.erb
