@@ -3,13 +3,14 @@ require 'rest-open-uri'
 
 class HottrendsController < ApplicationController
   
-  # GET api/hottrends/2009-8-16 (:date)
-  # GET api/hottrends/2009-8-16.xml (:date)
+  # GET api/hottrends/2009-8-16/(5) (:date)(:limit)
+  # GET api/hottrends/2009-8-16.xml (:date)(:limit)
   def api_day
     date = params[:date].to_date
-    create_hot_trends_if_not_in_db(date)
     
-    @hottrends = Hottrend.where(:date => date).order(:num)
+    create_hot_trends_if_not_in_db_and_final_version(date)
+    
+    @hottrends = Hottrend.where(:date => date).order(:num).limit(params[:limit] ||= "20")
     
     respond_to do |format|
       format.html # api_day.html.erb
@@ -18,14 +19,15 @@ class HottrendsController < ApplicationController
     end
   end
 
-  # GET api/hottrends/2009-8-16/2009-8-24 (:start_date/:end_date)
-  # GET api/hottrends/2009-8-16/2009-8-24.xml (:start_date/:end_date)
+  # GET api/hottrends/2009-8-16/2009-8-24/(5) (:start_date/:end_date)(:limit)
+  # GET api/hottrends/2009-8-16/2009-8-24.xml (:start_date/:end_date)(:limit)
   def api_period
     @start_date = params[:start_date].to_date
     @end_date = params[:end_date].to_date
-    create_hot_trends_if_not_in_db_by_period(@start_date, @end_date)
 
-    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date).order(:num)
+    create_hot_trends_if_not_in_db_and_final_version_by_period(@start_date, @end_date)
+
+    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date).order(:num).limit(params[:limit] ||= "20")
     
     respond_to do |format|
       format.html # api_period.html.erb
@@ -116,17 +118,18 @@ class HottrendsController < ApplicationController
     end
   end
 
-  def create_hot_trends_if_not_in_db_by_period(start_date, end_date)
+  def create_hot_trends_if_not_in_db_and_final_version_by_period(start_date, end_date)
     while start_date <= end_date
-      create_hot_trends_if_not_in_db(start_date)
+      create_hot_trends_if_not_in_db_and_final_version(start_date)
       start_date = start_date.+(1)
     end
   end
   
-  def create_hot_trends_if_not_in_db(date)
-    if Hottrend.where(:date => date).empty?
+  def create_hot_trends_if_not_in_db_and_final_version(date)
+    hottrend = Hottrend.where(:date => date)
+    if hottrend.empty?
       create_hot_trends_in_db(date)
-    elsif (date.day == Time.now.day and date.month == Time.now.month and date.year == Time.now.year)
+    elsif (hottrend[0].updated_at <= hottrend[0].date)
       destroy_hot_trends_in_db(date)
       create_hot_trends_in_db(date)
     end
