@@ -116,8 +116,8 @@ class HottrendsController < ApplicationController
 
   def create_hot_trends_if_not_in_db_by_period(start_date, end_date)
     while start_date <= end_date
-      start_date = start_date.+(1)
       create_hot_trends_if_not_in_db(start_date)
+      start_date = start_date.+(1)
     end
   end
   
