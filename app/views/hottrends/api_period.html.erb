@@ -1,0 +1,17 @@
+<p id="notice"><%= notice %></p>
+
+<% date = @start_date %>
+
+<% while date <= @end_date %>
+
+  <h3>Hot searches of <%= date %> (USA)</h3>
+  <ol>
+    <% @hottrends.where(:date => date).each do |h| %>
+    <li>
+      <%= h.text %>
+    </li>
+    <% end %>
+  </ol>
+  <% date = date.+(1) %>
+
+<% end %>

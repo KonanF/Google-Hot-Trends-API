@@ -3,21 +3,31 @@ require 'rest-open-uri'
 
 class HottrendsController < ApplicationController
   
-  # GET api/hottrends/2009-8-16
-  # GET api/hottrends/2009-8-16.xml
-  def api
-    param_date = params[:date].to_date
-    if Hottrend.where(:date => param_date).empty?
-      create_hot_trends_in_db(params[:date])
-    elsif (param_date.day == Time.now.day and param_date.month == Time.now.month and param_date.year == Time.now.year)
-      destroy_hot_trends_in_db(params[:date])
-      create_hot_trends_in_db(params[:date])
-    end
+  # GET api/hottrends/2009-8-16 (:date)
+  # GET api/hottrends/2009-8-16.xml (:date)
+  def api_day
+    date = params[:date].to_date
+    create_hot_trends_if_not_in_db(date)
     
-    @hottrends = Hottrend.where(:date => param_date)
-
+    @hottrends = Hottrend.where(:date => date)
+    
     respond_to do |format|
-      format.html # api.html.erb
+      format.html # api_day.html.erb
+      format.xml  { render :xml => @hottrends }
+    end
+  end
+
+  # GET api/hottrends/2009-8-16/2009-8-24 (:start_date/:end_date)
+  # GET api/hottrends/2009-8-16/2009-8-24.xml (:start_date/:end_date)
+  def api_period
+    @start_date = params[:start_date].to_date
+    @end_date = params[:end_date].to_date
+    create_hot_trends_if_not_in_db_by_period(@start_date, @end_date)
+
+    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date)
+    
+    respond_to do |format|
+      format.html # api_period.html.erb
       format.xml  { render :xml => @hottrends }
     end
   end
@@ -104,14 +114,32 @@ class HottrendsController < ApplicationController
     end
   end
 
-  def destroy_hot_trends_in_db(date)
-      hts = Hottrend.where(:date => date.to_date)
-      hts.each do |ht|
-        ht.destroy
-      end
+  def create_hot_trends_if_not_in_db_by_period(start_date, end_date)
+    while start_date <= end_date
+      start_date = start_date.+(1)
+      create_hot_trends_if_not_in_db(start_date)
     end
+  end
+  
+  def create_hot_trends_if_not_in_db(date)
+    if Hottrend.where(:date => date).empty?
+      create_hot_trends_in_db(date)
+    elsif (date.day == Time.now.day and date.month == Time.now.month and date.year == Time.now.year)
+      destroy_hot_trends_in_db(date)
+      create_hot_trends_in_db(date)
+    end
+  end
+
+  def destroy_hot_trends_in_db(date)
+    date = date.to_s
+    hts = Hottrend.where(:date => date.to_date)
+    hts.each do |ht|
+      ht.destroy
+    end
+  end
 
   def create_hot_trends_in_db(date)
+    date = date.to_s
     hdrs = {"User-Agent"=>"Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1", "Accept-Charset"=>"utf-8", "Accept"=>"text/html"}
     my_html = ""
     url = "http://www.google.com/trends/hottrends?date="+date
