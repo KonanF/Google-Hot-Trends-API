@@ -16,6 +16,7 @@ class HottrendsController < ApplicationController
       format.html # api_day.html.erb
       format.xml  { render :xml => @hottrends }
       format.json  { render :json => @hottrends }
+      format.text { render :text => render_txt(@hottrends, date) }
     end
   end
 
@@ -38,6 +39,7 @@ class HottrendsController < ApplicationController
       format.html # api_period.html.erb
       format.xml  { render :xml => @hottrends }
       format.json  { render :json => @hottrends }
+      format.text { render :text => render_txt(@hottrends, @start_date, @end_date ) }
     end
   end
 
@@ -161,6 +163,30 @@ class HottrendsController < ApplicationController
       Hottrend.create(:date => date.to_date, :text => e.inner_html, :num => @i, :culture => "en_US")
       @i += 1
     end
+  end
+
+  def render_txt hottrends, date, end_date = nil
+    end_date ||= date
+    text = ""
+    
+    while date <= end_date
+      text += "#{date.strftime("%B %d, %Y")}\n" #October 31, 2010
+      
+      i = 1
+      hottrends.each do |h|
+        if h.date == date
+          text += i.to_s+". "
+          text += h.text+"\n"
+          i+=1
+        end
+      end
+      
+      text += "\n"
+      
+      date = date.+(1)
+    end
+
+    return text
   end
 
 end
