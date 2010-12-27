@@ -26,8 +26,13 @@ class HottrendsController < ApplicationController
     @end_date = params[:end_date].to_date
 
     create_hot_trends_if_not_in_db_and_final_version_by_period(@start_date, @end_date)
-
-    @hottrends = Hottrend.where("date IN (?)", (@start_date)..(@end_date)).order(:date).order(:num).limit(params[:limit] ||= "20")
+    
+    @hottrends = []
+    date = @start_date
+    while date <= @end_date
+      @hottrends += Hottrend.where(:date => date).order(:num).limit(params[:limit] ||= "20")
+      date = date.+(1)
+    end
     
     respond_to do |format|
       format.html # api_period.html.erb

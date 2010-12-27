@@ -3,13 +3,15 @@
 <% date = @start_date %>
 
 <% while date <= @end_date %>
-
+  
   <h3>Hot searches of <%= date %> (USA)</h3>
   <ol>
-    <% @hottrends.where(:date => date).each do |h| %>
-    <li>
-      <%= h.text %>
-    </li>
+    <% @hottrends.each do |h| %>
+      <% if h.date == date %>
+      <li>
+        <%= h.text %>
+      </li>
+      <% end %>
     <% end %>
   </ol>
   <% date = date.+(1) %>
