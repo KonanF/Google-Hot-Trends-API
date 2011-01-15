@@ -38,13 +38,25 @@ class HottrendsController < ApplicationController
   def api_period
     @start_date = params[:start_date].to_date
     @end_date = params[:end_date].to_date
-
+    
     create_hot_trends_if_not_in_db_and_final_version_by_period(@start_date, @end_date)
+    
+    order = "num"
+    if params[:order]
+      order += " "+params[:order]
+    end
+
+    max_limit = 20
+    offset = 0
+
+    if params[:limit] && params[:order] && params[:order] == "desc"
+      offset = 20 - params[:limit].to_i
+    end
     
     @hottrends = []
     date = @start_date
     while date <= @end_date
-      @hottrends += Hottrend.where(:date => date).order(:num).limit(params[:limit] ||= "20")
+      @hottrends += Hottrend.where(:date => date).offset(offset).order(order).limit(params[:limit] ||= max_limit)
       date = date.+(1)
     end
     
