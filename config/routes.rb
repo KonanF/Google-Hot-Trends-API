@@ -4,7 +4,7 @@ Trends::Application.routes.draw do
   match 'api/hottrends/update/:date/' => 'hottrends#update_date'
   match 'api/hottrends/destroy/:date/' => 'hottrends#destroy_date'
   match 'api/hottrends/:date/(:limit)/(:order)' => 'hottrends#api_day', :limit => /1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20/, :order => /asc|desc/
-  match 'api/hottrends/:start_date/:end_date/(:limit)/(:order)' => 'hottrends#api_period', :limit => /1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20/, :order => /asc|desc/
+  match 'api/hottrends/:date1/:date2/(:limit)/(:order)' => 'hottrends#api_period', :limit => /1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20/, :order => /asc|desc/
   
   # The priority is based upon order of creation:
   # first created -> highest priority.

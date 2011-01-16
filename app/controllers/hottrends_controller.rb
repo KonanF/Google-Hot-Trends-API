@@ -32,20 +32,27 @@ class HottrendsController < ApplicationController
     end
   end
   
-  # GET api/hottrends/2009-8-16/2009-8-24/(5) (:start_date/:end_date)(:limit)
-  # GET api/hottrends/2009-8-16/2009-8-24.xml (:start_date/:end_date)
-  # GET api/hottrends/2009-8-16/2009-8-24.xml/(5)/(asc|desc) (:start_date/:end_date)(:limit)(:order)
+  # GET api/hottrends/2009-8-16/2009-8-24/(5) (:date1/:date2)(:limit)
+  # GET api/hottrends/2009-8-16/2009-8-24.xml (:date1/:date2)
+  # GET api/hottrends/2009-8-16/2009-8-24.xml/(5)/(asc|desc) (:date1/:date2)(:limit)(:order)
   def api_period
-    @start_date = params[:start_date].to_date
-    @end_date = params[:end_date].to_date
+    @date1 = params[:date1].to_date
+    @date2 = params[:date2].to_date
     
+    if @date1 <= @date2
+      @start_date = @date1
+      @end_date = @date2
+    else
+      @start_date = @date2
+      @end_date = @date1
+    end
     create_hot_trends_if_not_in_db_and_final_version_by_period(@start_date, @end_date)
     
     order = "num"
     if params[:order]
       order += " "+params[:order]
     end
-
+    
     max_limit = 20
     offset = 0
 
@@ -54,10 +61,18 @@ class HottrendsController < ApplicationController
     end
     
     @hottrends = []
-    date = @start_date
-    while date <= @end_date
-      @hottrends += Hottrend.where(:date => date).offset(offset).order(order).limit(params[:limit] ||= max_limit)
-      date = date.+(1)
+    if @date1 <= @date2
+      date = @start_date
+      while date <= @end_date
+        @hottrends += Hottrend.where(:date => date).offset(offset).order(order).limit(params[:limit] ||= max_limit)
+        date = date.+(1)
+      end
+    else
+      date = @end_date
+      while date >= @start_date
+        @hottrends += Hottrend.where(:date => date).offset(offset).order("date DESC, "+order).limit(params[:limit] ||= max_limit)
+        date = date.-(1)
+      end
     end
     
     respond_to do |format|
