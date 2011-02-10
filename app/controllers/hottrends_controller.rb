@@ -8,19 +8,14 @@ class HottrendsController < ApplicationController
   # GET api/hottrends/2009-8-16/(5)/(asc|desc) (:date)(:limit)(:order)
   def api_day
     date = params[:date].to_date
-    create_hot_trends_if_not_in_db_and_final_version(date)
+    create_hot_trends_if_not_in_db_and_final_version date
     
     order = "num"
-    if params[:order]
-      order += " "+params[:order]
-    end
+    order += " "+params[:order] if params[:order]
     
     max_limit = 20
     offset = 0
-    
-    if params[:limit] && params[:order] && params[:order] == "desc"
-      offset = 20 - params[:limit].to_i
-    end
+    offset = 20 - params[:limit].to_i if params[:limit] && params[:order] && params[:order] == "desc"
     
     @hottrends = Hottrend.where(:date => date).offset(offset).order(order).limit(params[:limit] ||= max_limit)
     
@@ -49,16 +44,11 @@ class HottrendsController < ApplicationController
     create_hot_trends_if_not_in_db_and_final_version_by_period(@start_date, @end_date)
     
     order = "num"
-    if params[:order]
-      order += " "+params[:order]
-    end
+    order += " "+params[:order] if params[:order]
     
     max_limit = 20
     offset = 0
-
-    if params[:limit] && params[:order] && params[:order] == "desc"
-      offset = 20 - params[:limit].to_i
-    end
+    offset = 20 - params[:limit].to_i if params[:limit] && params[:order] && params[:order] == "desc"
     
     @hottrends = []
     if @date1 <= @date2
@@ -114,14 +104,14 @@ class HottrendsController < ApplicationController
   end
   
   def update date
-    date = date.to_s
+    date = "#{date.year}-#{date.month}-#{date.day}"
     hdrs = {"User-Agent"=>"Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1", "Accept-Charset"=>"utf-8", "Accept"=>"text/html"}
     my_html = ""
     url = "http://www.google.com/trends/hottrends?date="+date
     page = open(url, hdrs).each {|s| my_html << s}
-    @web_doc =  Hpricot(my_html)
+    @web_doc =  Hpricot my_html
     
-    unless Hottrend.where(:date => date.to_date).first.nil?
+    if !Hottrend.where(:date => date.to_date).first.nil?
       @i = 0
       (@web_doc/"td.hotColumn").search("a").each do |e|
         @hottrend = Hottrend.where(:date => date.to_date, :num => @i, :culture => "en_US").first
@@ -129,7 +119,7 @@ class HottrendsController < ApplicationController
         @i += 1
       end
     else
-      create date
+      create date.to_date
     end
   end
   
@@ -151,19 +141,19 @@ class HottrendsController < ApplicationController
     end
   end
   
-  def create_hot_trends_if_not_in_db_and_final_version_by_period(start_date, end_date)
+  def create_hot_trends_if_not_in_db_and_final_version_by_period start_date, end_date
     while start_date <= end_date
-      create_hot_trends_if_not_in_db_and_final_version(start_date)
+      create_hot_trends_if_not_in_db_and_final_version start_date
       start_date = start_date.+(1)
     end
   end
   
-  def create_hot_trends_if_not_in_db_and_final_version(date)
-    hottrend = Hottrend.where(:date => date)
+  def create_hot_trends_if_not_in_db_and_final_version date
+    hottrend = Hottrend.where :date => date
     if hottrend.empty?
-      create date
-    elsif (hottrend[0].updated_at <= hottrend[0].date)
-      update date
+      create date.to_date
+    elsif date.to_date > Time.now.to_date-5 # Google need a few days to stabilize the trends
+      update date.to_date
     end
   end
   
@@ -212,7 +202,7 @@ class HottrendsController < ApplicationController
       format.xml  { render :xml => @hottrend }
     end
   end
-
+  
   # GET /hottrends/new
   # GET /hottrends/new.xml
   def new
